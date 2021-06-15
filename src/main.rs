@@ -17,13 +17,7 @@ fn main() {
 
     let date = get_date_from_args(&args);
 
-    let birth : Date<Local> = Local.ymd(2019, 11, 12);
-
-    //Calculates and prints the age of yohan
-    
-    let diff = date - birth;
-    //We calculate his age : the number of days since 12/11/2019, minus the number of non-birthdays (every 12/11), plus his age the 12/11/2019
-    let age = (diff.num_days() - ((diff.num_days() - 1) / 365)) + 18;
+    let age = howoldisyohan::age(date);
     if args.raw_data {
         println!("{}",age);
     } else {
