@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use chrono::prelude::*;
 use chrono_tz::Tz;
 use clap::Parser;
@@ -34,16 +35,28 @@ fn main() {
     }
 }
 
-//Takes the arguments of the command line, and extracts a date out of them if one is specified
-fn parse_date(dt_str: &str) -> Result<NaiveDateTime, &'static str> {
-    let vec_date : Vec<u32> = dt_str.split('/')
-        .into_iter()
-        .map(|s| -> u32 { s.parse().unwrap() } )
-        .collect();
+#[derive(Debug, thiserror::Error)]
+enum ParseDateError {
+    #[error("cannot parse one of the date components: {0}")]
+    ParseInt(#[from] std::num::ParseIntError),
 
-    //tries to return a date
-    match NaiveDate::from_ymd_opt(vec_date[2] as i32, vec_date[1], vec_date[0]) {
+    #[error("missing component, the date should be written as DD/MM/YYYY")]
+    MissingComponent,
+
+    #[error("date \"{0}\" doesn't exist")]
+    OutOfBounds(String),
+}
+
+//Takes the arguments of the command line, and extracts a date out of them if one is specified
+fn parse_date(dt_str: &str) -> Result<NaiveDateTime, ParseDateError> {
+    let mut components = dt_str.split('/').map(u32::from_str).fuse();
+
+    let day = components.next().ok_or(ParseDateError::MissingComponent)??;
+    let month = components.next().ok_or(ParseDateError::MissingComponent)??;
+    let year = components.next().ok_or(ParseDateError::MissingComponent)??;
+
+    match NaiveDate::from_ymd_opt(year as i32, month, day) {
         Some(dt) => Ok(dt.and_hms_opt(0, 0, 0).unwrap()),
-        _ => Err("Incorrect syntax, use dd/mm/yyyy to specify a date"),
+        _ => Err(ParseDateError::OutOfBounds(dt_str.into())),
     }
 }
