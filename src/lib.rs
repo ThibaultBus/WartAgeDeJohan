@@ -1,7 +1,10 @@
-use chrono::{Date, Local, TimeZone};
+use chrono::{NaiveDate};
 
-pub fn age(at: Date<Local>) -> i64 {
-    let birth : Date<Local> = Local.ymd(2019, 11, 12);
+// TODO: Unwrap the option when const panicking is stabilized
+const BIRTH: Option<NaiveDate> = NaiveDate::from_ymd_opt(2019, 11, 12);
+
+pub fn age(at: NaiveDate) -> i64 {
+    let birth = BIRTH.unwrap();
 
     // Calculate the age of yohan
 
