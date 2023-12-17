@@ -13,4 +13,4 @@ name = "howoldisyohan"
 
 [dependencies]
 chrono = "0.4"
-structopt = "0.3.13"
+clap = { version = "4.4.11", features = ["derive"] }

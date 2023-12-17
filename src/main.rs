@@ -1,19 +1,20 @@
 use chrono::prelude::*;
 use chrono::offset::LocalResult;
-use structopt::StructOpt;
+use clap::Parser;
 
-#[derive(StructOpt)]
+#[derive(Parser)]
 struct Cli {
-    //Allows to specify a date instead of taking today's one
-    #[structopt(short = "d", long = "date")]
-    date_option : Option<String>,
-    //Make the command prints raw data of writing a sentence
-    #[structopt(short = "r", long = "raw")]
-    raw_data : bool,
+    /// Manually override the current date [default: today]
+    #[clap(short, long = "date")]
+    date_option: Option<String>,
+
+    /// Print raw data instead of writing a sentence
+    #[clap(short, long = "raw")]
+    raw_data: bool,
 }
 
 fn main() {
-    let args = Cli::from_args();
+    let args = Cli::parse();
 
     let date = get_date_from_args(&args);
 
@@ -35,8 +36,8 @@ fn get_date_from_args(args : &Cli) -> Date<Local> {
                 .into_iter()
                 .map(|s| -> u32 { s.parse().unwrap() } )
                 .collect();
-            
-            //tries to return a date 
+
+            //tries to return a date
             match Local.ymd_opt(vec_date[2] as i32, vec_date[1], vec_date[0]) {
                 LocalResult::Single(dt) => dt,
                 _ => panic!("Incorrect syntax, use dd/mm/yyyy to specify a date"),
